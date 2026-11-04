@@ -5,7 +5,7 @@ step 3：处理数据集的函数
 
 from load_dataset import read_file
 from sklearn.model_selection import train_test_split
-from keras.utils import np_utils
+from tensorflow.keras.utils import to_categorical
 import random
 
 # 建立一个用于存储和格式化读取训练数据的类
@@ -28,16 +28,16 @@ class DataSet(object):
         X_train, X_test, y_train, y_test = train_test_split(imgs, labels, test_size=0.2, random_state=random.randint(0, 100))
 
         # 重新格式化和标准化
-        # 本案例是基于thano的，如果基于tensorflow的backend需要进行修改
-        X_train = X_train.reshape(X_train.shape[0], 1, self.img_size, self.img_size) / 255.0
-        X_test = X_test.reshape(X_test.shape[0], 1, self.img_size, self.img_size) / 255.0
+        # TensorFlow/Keras 默认使用 channels_last：height, width, channels
+        X_train = X_train.reshape(X_train.shape[0], self.img_size, self.img_size, 1) / 255.0
+        X_test = X_test.reshape(X_test.shape[0], self.img_size, self.img_size, 1) / 255.0
 
         X_train = X_train.astype('float32')
         X_test = X_test.astype('float32')
 
         # 将labels转成 binary class matrices
-        Y_train = np_utils.to_categorical(y_train, num_classes=counter)
-        Y_test = np_utils.to_categorical(y_test, num_classes=counter)
+        Y_train = to_categorical(y_train, num_classes=counter)
+        Y_test = to_categorical(y_test, num_classes=counter)
 
         # 将格式化后的数据赋值给类的属性上
         self.X_train = X_train

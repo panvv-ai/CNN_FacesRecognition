@@ -3,17 +3,19 @@ step 3：
     构建并训练模型；
 -----------------------------------------"""
 # -*-coding:utf8-*-
+import os
+
 from dataSet import DataSet
-from keras.models import Sequential, load_model
-from keras.layers import Dense, Activation, Convolution2D, MaxPooling2D, Flatten, Dropout
 import numpy as np
+from tensorflow.keras.layers import Activation, Conv2D, Dense, Flatten, Input, MaxPooling2D
+from tensorflow.keras.models import Sequential, load_model
 
 
 
 # 定义(基于CNN的人脸识别的)模型类
 class Model(object):
     # 模型进行存储和读取的路径，以及模型名称
-    FILE_PATH = "./MyModel/model.h5"
+    FILE_PATH = "./MyModel/model.keras"
     # 模型接受的人脸图片大小：128*128
     IMAGE_SIZE = 128
 
@@ -28,13 +30,12 @@ class Model(object):
     # 建立一个CNN模型，一层卷积、一层池化、一层卷积、一层池化、抹平之后进行全链接、最后进行分类
     def build_model(self):
         self.model = Sequential()
+        self.model.add(Input(shape=self.dataset.X_train.shape[1:]))
         self.model.add(
-            Convolution2D(
+            Conv2D(
                 filters=32,
                 kernel_size=(5, 5),
                 padding='same',
-                dim_ordering='th',
-                input_shape=self.dataset.X_train.shape[1:]
             )
         )
 
@@ -47,7 +48,7 @@ class Model(object):
             )
         )
 
-        self.model.add(Convolution2D(filters=64, kernel_size=(5, 5), padding='same'))
+        self.model.add(Conv2D(filters=64, kernel_size=(5, 5), padding='same'))
         self.model.add(Activation('relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'))
 
@@ -81,6 +82,7 @@ class Model(object):
 
     # 保存模型
     def save(self, file_path=FILE_PATH):
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
         print('Model Saved.')
         self.model.save(file_path)
 
@@ -91,12 +93,12 @@ class Model(object):
 
     # 需要确保输入的img得是灰化之后（channel =1 )且 大小为IMAGE_SIZE的人脸图片
     def predict(self, img):
-        img = img.reshape((1, 1, self.IMAGE_SIZE, self.IMAGE_SIZE))
+        img = img.reshape((1, self.IMAGE_SIZE, self.IMAGE_SIZE, 1))
         img = img.astype('float32')
         img = img / 255.0
 
         # 计算该img属于某个label的概率
-        result = self.model.predict_proba(img)
+        result = self.model.predict(img, verbose=0)
         # 找出概率最高的
         max_index = np.argmax(result)
 

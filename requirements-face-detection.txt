@@ -1,0 +1,2 @@
+-r requirements.txt
+dlib==20.0.1
