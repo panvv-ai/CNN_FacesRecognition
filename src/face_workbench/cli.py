@@ -13,7 +13,7 @@ from face_workbench.config import Settings
 from face_workbench.db import get_active_model
 from face_workbench.ml import TrainingOptions
 from face_workbench.services.container import AppServices
-from face_workbench.services.importer import LegacyImporter
+from face_workbench.services.importer import DirectoryDatasetImporter
 from face_workbench.vision import read_image
 
 app = typer.Typer(
@@ -88,14 +88,14 @@ def db_upgrade() -> None:
     typer.echo("数据库已升级到最新版本。")
 
 
-@app.command("import-legacy")
-def import_legacy(
-    source: Path = typer.Option(Path("dataset"), help="旧数据集目录"),
+@app.command("import-dataset")
+def import_dataset(
+    source: Path = typer.Option(..., "--source", help="按人物目录组织的源数据目录"),
 ) -> None:
-    """将旧 dataset/<姓名>/ 图片复制并登记到新存储。"""
+    """将 <姓名>/<图片> 目录中的照片复制并登记到应用存储。"""
     services = _services()
     try:
-        result = LegacyImporter(services.datasets).import_from(source)
+        result = DirectoryDatasetImporter(services.datasets).import_from(source)
         _print_result(result)
     finally:
         services.close()

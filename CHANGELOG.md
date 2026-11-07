@@ -18,6 +18,6 @@ All notable changes to Face Workbench are documented here. The project follows
 
 ### Changed
 
-- Replaced duplicated scripts with a layered Python package and thin compatibility wrappers.
+- Replaced duplicated scripts with a layered Python package and removed obsolete root-level wrappers.
 - Standardized face detection, label ordering, model metadata, and error handling.
 - Upgraded repository tooling, documentation, CI, and dependency management.

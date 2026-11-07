@@ -5,5 +5,5 @@
 3. CNN training, model metadata, and recognition services.
 4. Job orchestration, video processing, camera protocol, and API.
 5. React workbench, generated OpenAPI types, and responsive styling.
-6. Unified CLI, compatibility wrappers, documentation, and repository tooling.
+6. Unified CLI, removal of obsolete wrappers, documentation, and repository tooling.
 7. Full test/lint/build verification and CodeGraph index initialization.

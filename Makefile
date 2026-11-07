@@ -22,7 +22,7 @@ test: build
 	pnpm --dir frontend test:e2e
 
 api-types:
-	uv run python scripts/export_openapi.py
+	uv run python scripts/exportOpenapi.py
 	pnpm --dir frontend api:types
 
 codegraph-index:

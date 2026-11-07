@@ -126,14 +126,14 @@ weights.
 - **Recognize** accepts photos, videos, or a live browser camera.
 - Results below the model threshold are labelled `Unknown`.
 
-### Import legacy data
+### Import an existing dataset
 
 ```bash
-uv run python main.py import-legacy --source dataset
+uv run python main.py import-dataset --source /path/to/photos-by-person
 ```
 
-Legacy files are detected, cropped, and copied into the new storage. Original
-files are not modified.
+The source directory must use `<person>/<image>` layout. Files are detected,
+cropped, and copied into application storage. Original files are not modified.
 
 ## CLI
 
@@ -142,7 +142,7 @@ files are not modified.
 | `uv run python main.py` | Start the local web product |
 | `uv run python main.py serve` | Explicitly start the web server |
 | `uv run python main.py db-upgrade` | Upgrade the SQLite schema |
-| `uv run python main.py import-legacy --source dataset` | Import legacy data |
+| `uv run python main.py import-dataset --source <directory>` | Import an existing person/image dataset |
 | `uv run python main.py collect --source photo --person Alice --input ./photos` | Collect from photos |
 | `uv run python main.py collect --source video --person Alice --input ./video.mp4` | Collect from video |
 | `uv run python main.py collect --source camera --person Alice` | Collect from the local camera |
@@ -238,12 +238,6 @@ codegraph explore "RecognitionService TrainingService"
 ```
 
 The local `.codegraph/` SQLite index is ignored by Git.
-
-## Compatibility entrypoints
-
-The original `faces_from_*.py`, `Recognize_From_*.py`, `dataSet.py`,
-`load_dataset.py`, `read_img.py`, and `train_model.py` files remain as legacy
-entrypoints or compatibility exports. New usage should go through `main.py`.
 
 ## Known limitations
 

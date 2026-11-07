@@ -45,6 +45,7 @@ addopts = "-q"
 asyncio_default_fixture_loop_scope = "function"
 pythonpath = ["src"]
 testpaths = ["tests"]
+python_files = ["test*.py"]
 filterwarnings = [
   "ignore:Using `httpx` with `starlette.testclient` is deprecated.*:starlette.exceptions.StarletteDeprecationWarning",
   "ignore:__array__ implementation doesn't accept a copy keyword.*:DeprecationWarning",

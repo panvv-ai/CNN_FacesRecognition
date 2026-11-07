@@ -24,9 +24,6 @@ test-results/
 
 # Runtime data and model artifacts
 storage/
-MyModel/
-my_faces/
-MySource_faces/
 *.keras
 *.h5
 *.onnx

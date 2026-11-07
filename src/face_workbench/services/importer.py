@@ -17,7 +17,7 @@ class ImportResult:
     invalid_images: int
 
 
-class LegacyImporter:
+class DirectoryDatasetImporter:
     def __init__(self, datasets: DatasetService) -> None:
         self.datasets = datasets
 

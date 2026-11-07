@@ -8,7 +8,7 @@ from face_workbench.db import Database, upgrade_database
 from face_workbench.domain import FaceBox
 from face_workbench.ml import ModelBundle
 from face_workbench.services import DatasetService, StorageLayout
-from face_workbench.services.importer import LegacyImporter
+from face_workbench.services.importer import DirectoryDatasetImporter
 from face_workbench.services.media import MediaService
 
 
@@ -98,17 +98,17 @@ def test_video_recognition_writes_annotation(tmp_path: Path) -> None:
     assert (layout.root / result.output_path).is_file()
 
 
-def test_legacy_import_copies_faces_without_editing_sources(tmp_path: Path) -> None:
+def test_directory_import_copies_faces_without_editing_sources(tmp_path: Path) -> None:
     database, layout = make_stack(tmp_path)
     datasets = DatasetService(database, layout, FixedDetector([FaceBox(2, 2, 50, 50)]))
-    source = tmp_path / "legacy"
+    source = tmp_path / "source"
     for index, name in enumerate(("Alice", "Bob")):
         directory = source / name
         directory.mkdir(parents=True)
         image = np.full((70, 70, 3), 120 + index * 10, dtype=np.uint8)
         assert cv2.imwrite(str(directory / "face.jpg"), image) is True
     before = {path: path.stat().st_mtime_ns for path in source.rglob("*") if path.is_file()}
-    result = LegacyImporter(datasets).import_from(source)
+    result = DirectoryDatasetImporter(datasets).import_from(source)
 
     assert result.imported == 2
     assert result.missing_face == 0

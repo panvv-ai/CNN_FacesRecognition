@@ -126,13 +126,13 @@ Vite 会把 REST API 和摄像头 WebSocket 代理到本地 FastAPI 服务。
 
 低于模型阈值的结果显示为 `Unknown`。
 
-### 5. 导入旧数据
+### 5. 导入已有数据
 
 ```bash
-uv run python main.py import-legacy --source dataset
+uv run python main.py import-dataset --source /path/to/photos-by-person
 ```
 
-导入过程会复制检测后的人脸样本，不会修改旧目录中的原始文件。
+源目录应按 `<人物姓名>/<图片>` 组织。导入过程会复制检测后的人脸样本，不会修改源目录中的原始文件。
 
 ## 命令行
 
@@ -141,7 +141,7 @@ uv run python main.py import-legacy --source dataset
 | `uv run python main.py` | 启动本地 Web 产品 |
 | `uv run python main.py serve` | 显式启动 Web 服务 |
 | `uv run python main.py db-upgrade` | 升级 SQLite 数据库结构 |
-| `uv run python main.py import-legacy --source dataset` | 导入旧数据集 |
+| `uv run python main.py import-dataset --source <目录>` | 导入按人物目录组织的已有数据 |
 | `uv run python main.py collect --source photo --person Alice --input ./photos` | 从照片采集 |
 | `uv run python main.py collect --source video --person Alice --input ./video.mp4` | 从视频采集 |
 | `uv run python main.py collect --source camera --person Alice` | 从本机摄像头采集 |
@@ -241,10 +241,6 @@ codegraph explore "RecognitionService TrainingService"
 ```
 
 `.codegraph/` 是本地生成的 SQLite 索引，不提交到版本库。
-
-## 兼容入口
-
-根目录的 `faces_from_*.py`、`Recognize_From_*.py`、`dataSet.py`、`load_dataset.py`、`read_img.py` 和 `train_model.py` 保留为旧入口或兼容导出。新项目和新脚本应统一使用 `python main.py`。
 
 ## 已知限制
 
