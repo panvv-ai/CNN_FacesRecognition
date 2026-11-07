@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="README.md">简体中文</a> | <a href="README.en.md">English</a>
+  <a href="README.md">简体中文</a> | <a href="docs/README.en.md">English</a>
 </p>
 
 Face Workbench 将照片、视频和浏览器摄像头三种人脸数据来源收束到同一个产品工作台。用户可以采集和整理人脸样本、训练轻量 CNN 分类模型，并使用同一组模型完成照片、视频及实时摄像头识别。
@@ -164,6 +164,7 @@ uv run python main.py import-dataset --source /path/to/photos-by-person
 │   ├── api/                    # FastAPI、WebSocket 和静态页面
 │   └── cli.py                  # 统一命令行入口
 ├── frontend/                   # React + TypeScript + Vite
+├── config/                     # 本地环境变量示例
 ├── migrations/                 # Alembic 数据库迁移
 ├── docs/                       # 架构、模型卡、隐私和数据库文档
 ├── tests/                      # Python 单元与集成测试
@@ -195,7 +196,7 @@ storage/
 
 ## 配置
 
-复制 [`.env.example`](.env.example) 为 `.env`，或直接使用环境变量：
+复制 [`config/env.example`](config/env.example) 为 `.env`，或直接使用环境变量：
 
 | 变量 | 默认值 | 说明 |
 | --- | --- | --- |
@@ -209,8 +210,6 @@ storage/
 ## 开发与测试
 
 ```bash
-uv run pre-commit install
-
 uv run ruff check src tests scripts main.py *.py
 uv run mypy
 uv run pytest
@@ -252,7 +251,7 @@ codegraph explore "RecognitionService TrainingService"
 
 ## 贡献
 
-提交代码前请阅读 [贡献指南](CONTRIBUTING.md)、[安全策略](SECURITY.md) 和 [行为准则](CODE_OF_CONDUCT.md)。
+提交代码前请阅读 [贡献指南](.github/CONTRIBUTING.md)、[安全策略](.github/SECURITY.md) 和 [行为准则](.github/CODE_OF_CONDUCT.md)。
 
 ## 开源协议
 

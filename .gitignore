@@ -51,4 +51,3 @@ logs/
 
 # Local tooling indexes
 .codegraph/
-.hallmark/preflight.json

@@ -12,7 +12,7 @@
     "test:e2e": "playwright test",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
-    "api:types": "openapi-typescript ../openapi.json -o src/api/schema.ts"
+    "api:types": "openapi-typescript ../../docs/api/openapi.json -o src/api/schema.ts"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.2.6",

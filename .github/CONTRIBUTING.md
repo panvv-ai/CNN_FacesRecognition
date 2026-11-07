@@ -24,7 +24,7 @@ pnpm --dir frontend build
 ```
 
 New behavior requires tests. Database changes require an Alembic migration and a
-migration test. API changes require regenerating `openapi.json` and
+migration test. API changes require regenerating `docs/api/openapi.json` and
 `frontend/src/api/schema.ts`.
 
 Do not commit personal face images, model weights, uploaded media, recognition

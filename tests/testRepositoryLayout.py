@@ -11,6 +11,22 @@ def test_root_only_contains_the_unified_entrypoint() -> None:
     assert root_python_files == ["main.py"]
 
 
+def test_visible_root_files_are_limited_to_project_anchors() -> None:
+    visible_root_files = sorted(
+        path.name
+        for path in PROJECT_ROOT.iterdir()
+        if path.is_file() and not path.name.startswith(".")
+    )
+
+    assert visible_root_files == [
+        "LICENSE",
+        "README.md",
+        "main.py",
+        "pyproject.toml",
+        "uv.lock",
+    ]
+
+
 def test_python_source_and_test_files_use_camel_case_names() -> None:
     invalid: list[str] = []
     for directory in ("src", "scripts", "tests", "migrations"):

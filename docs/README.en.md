@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="README.md">简体中文</a> | <a href="README.en.md">English</a>
+  <a href="../README.md">简体中文</a> | <a href="README.en.md">English</a>
 </p>
 
 Face Workbench brings photo, video, and browser-camera face sources into one
@@ -34,7 +34,7 @@ metadata.
 
 <p align="center">
   <img
-    src="docs/images/face-workbench.png"
+    src="images/face-workbench.png"
     alt="Face Workbench product screenshot using empty demo data with no real people"
     width="100%"
   >
@@ -165,13 +165,14 @@ cropped, and copied into application storage. Original files are not modified.
 │   ├── api/                    # FastAPI, WebSocket, static SPA
 │   └── cli.py                  # Typer command-line interface
 ├── frontend/                   # React + TypeScript + Vite
+├── config/                     # Local environment example
 ├── migrations/                 # Alembic migrations
 ├── docs/                       # Architecture, privacy, model card, database docs
 ├── tests/                      # Python unit and integration tests
 └── storage/                    # Runtime data, ignored by Git
 ```
 
-See [docs/architecture.md](docs/architecture.md) for the design.
+See [architecture.md](architecture.md) for the design.
 
 ## Data and privacy
 
@@ -192,11 +193,11 @@ storage/
 - Thumbnail routes only serve registered sample IDs; the whole storage directory is not exposed.
 - Deleting a source sample does not erase learned parameters from historical models.
 
-Read [docs/privacy.md](docs/privacy.md) and [docs/model-card.md](docs/model-card.md).
+Read [privacy.md](privacy.md) and [model-card.md](model-card.md).
 
 ## Configuration
 
-Copy [`.env.example`](.env.example) to `.env`, or use environment variables:
+Copy [`config/env.example`](../config/env.example) to `.env`, or use environment variables:
 
 | Variable | Default | Description |
 | --- | --- | --- |
@@ -210,8 +211,6 @@ Copy [`.env.example`](.env.example) to `.env`, or use environment variables:
 ## Development and testing
 
 ```bash
-uv run pre-commit install
-
 uv run ruff check src tests scripts main.py *.py
 uv run mypy
 uv run pytest
@@ -249,14 +248,15 @@ The local `.codegraph/` SQLite index is ignored by Git.
 
 ## Contributing
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and
-[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before submitting changes.
+Read [CONTRIBUTING.md](../.github/CONTRIBUTING.md),
+[SECURITY.md](../.github/SECURITY.md), and
+[CODE_OF_CONDUCT.md](../.github/CODE_OF_CONDUCT.md) before submitting changes.
 
 ## License
 
 Copyright © 2026 CNN_FacesRecognition contributors.
 
-This project is released under the [MIT License](LICENSE). Subject to preserving
+This project is released under the [MIT License](../LICENSE). Subject to preserving
 the copyright and permission notices, you may use, copy, modify, merge, publish,
 distribute, sublicense, and sell copies of the software.
 

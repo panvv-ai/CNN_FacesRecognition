@@ -1,7 +1,7 @@
 /* Hallmark · macrostructure: Workbench · tone: atmospheric-technical · anchor hue: blue
  * theme: Aurora · nav: N5 · footer: Ft5 · enrichment: Tier A scan surface
  * Hallmark · pre-emit critique: P5 H4 E5 S5 R4 V4 */
-@import "../../tokens.css";
+@import "./tokens.css";
 
 *,
 *::before,

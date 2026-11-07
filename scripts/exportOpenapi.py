@@ -14,7 +14,8 @@ def main() -> None:
         app = create_app(settings)
         schema = app.openapi()
         app.state.services.close()
-    output = Path(__file__).resolve().parents[1] / "openapi.json"
+    output = Path(__file__).resolve().parents[1] / "docs" / "api" / "openapi.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
         json.dumps(schema, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",

@@ -27,7 +27,7 @@ def _create_parent_directory(database_url: str) -> None:
 
 def upgrade_database(database_url: str) -> None:
     _create_parent_directory(database_url)
-    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    config = Config(str(PROJECT_ROOT / "migrations" / "alembic.ini"))
     config.set_main_option("script_location", str(PROJECT_ROOT / "migrations"))
     config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
     command.upgrade(config, "head")

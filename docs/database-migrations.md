@@ -5,7 +5,7 @@ Face Workbench uses SQLAlchemy with Alembic. The default database is
 
 ```bash
 uv run python main.py db-upgrade
-uv run alembic revision --autogenerate -m "describe the schema change"
+uv run alembic -c migrations/alembic.ini revision --autogenerate -m "describe the schema change"
 ```
 
 Review generated migrations before committing. SQLite schema changes that alter
