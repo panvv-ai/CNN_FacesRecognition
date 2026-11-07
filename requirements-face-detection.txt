@@ -1,2 +1,2 @@
+# Dlib is no longer required. Face Workbench uses OpenCV Haar detection.
 -r requirements.txt
-dlib==20.0.1

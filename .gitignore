@@ -1,9 +1,57 @@
-.DS_Store
-.idea/
-.venv/
+# Python
 __pycache__/
 *.py[cod]
+*$py.class
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+*.egg-info/
 
+# JavaScript / Vite
+node_modules/
+frontend/node_modules/
+frontend/dist/
+.vite/
+*.tsbuildinfo
+playwright-report/
+test-results/
+
+# Runtime data and model artifacts
+storage/
 MyModel/
 my_faces/
 MySource_faces/
+*.keras
+*.h5
+*.onnx
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local tooling indexes
+.codegraph/
+.hallmark/preflight.json

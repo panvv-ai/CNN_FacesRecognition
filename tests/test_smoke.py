@@ -1,61 +1,48 @@
-import tempfile
-import unittest
 from pathlib import Path
 
 import cv2
 import numpy as np
-import tensorflow as tf
+from typer.testing import CliRunner
 
-from dataSet import DataSet
-from train_model import Model
-
-
-class ModelSmokeTest(unittest.TestCase):
-    def test_train_save_load_and_predict(self):
-        rng = np.random.default_rng(42)
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            root = Path(tmp_dir)
-            dataset_dir = root / "dataset"
-            model_path = root / "model.keras"
-
-            for label in ("alice", "bob"):
-                label_dir = dataset_dir / label
-                label_dir.mkdir(parents=True)
-                for index in range(4):
-                    image = rng.integers(0, 256, (128, 128, 3), dtype=np.uint8)
-                    cv2.imwrite(str(label_dir / f"{index}.jpg"), image)
-
-            dataset = DataSet(str(dataset_dir))
-            self.assertEqual(dataset.num_classes, 2)
-            self.assertEqual(dataset.X_train.shape[1:], (128, 128, 1))
-
-            model = Model()
-            model.read_trainData(dataset)
-            model.build_model()
-            model.model.compile(
-                optimizer="adam",
-                loss="categorical_crossentropy",
-                metrics=["accuracy"],
-            )
-            model.model.fit(
-                dataset.X_train,
-                dataset.Y_train,
-                epochs=1,
-                batch_size=4,
-                verbose=0,
-            )
-            model.save(str(model_path))
-
-            restored = Model()
-            restored.load(str(model_path))
-            label, probability = restored.predict(dataset.X_test[0])
-
-            self.assertIn(label, (0, 1))
-            self.assertGreaterEqual(float(probability), 0.0)
-            self.assertLessEqual(float(probability), 1.0)
+import face_workbench.cli as cli
+from face_workbench.cli import app
+from face_workbench.legacy import read_file, read_name_list
 
 
-if __name__ == "__main__":
-    tf.get_logger().setLevel("ERROR")
-    unittest.main()
+def test_cli_help_lists_product_commands() -> None:
+    result = CliRunner().invoke(app, ["--help"])
+
+    assert result.exit_code == 0
+    assert "serve" in result.stdout
+    assert "collect" in result.stdout
+    assert "train" in result.stdout
+    assert "recognize" in result.stdout
+
+
+def test_cli_without_arguments_starts_the_web_app(monkeypatch) -> None:
+    called: list[bool] = []
+    monkeypatch.setattr(
+        cli,
+        "serve",
+        lambda host, port, open_browser: called.append(True),
+    )
+
+    result = CliRunner().invoke(app, [])
+
+    assert result.exit_code == 0
+    assert called == [True]
+
+
+def test_legacy_dataset_helpers_keep_stable_person_order(tmp_path: Path) -> None:
+    for name in ("Zoe", "Alice"):
+        directory = tmp_path / name
+        directory.mkdir()
+        image = np.full((40, 40, 3), 120, dtype=np.uint8)
+        assert cv2.imwrite(str(directory / "sample.jpg"), image)
+
+    images, labels, count = read_file(tmp_path)
+
+    assert images.shape == (2, 128, 128)
+    assert labels == [0, 1]
+    assert count == 2
+    assert read_name_list(tmp_path) == ["Alice", "Zoe"]

@@ -1,3 +1,2 @@
-tensorflow==2.21.0
-opencv-python==5.0.0.93
-scikit-learn==1.9.1
+# Compatibility install entrypoint. Canonical dependencies live in pyproject.toml.
+-e .

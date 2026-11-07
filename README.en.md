@@ -1,280 +1,272 @@
-# CNN_FacesRecognition
+# Face Workbench
 
-**CNN-based face dataset collection, model training, and inference from images, videos, and webcams.**
+**A local-first workbench for face collection, CNN training, and recognition.**
 
 <p align="center">
   <a href="https://github.com/panvv-ai/CNN_FacesRecognition/actions/workflows/ci.yml">
     <img alt="CI" src="https://github.com/panvv-ai/CNN_FacesRecognition/actions/workflows/ci.yml/badge.svg">
   </a>
-  <img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white">
-  <img alt="TensorFlow 2.21" src="https://img.shields.io/badge/TensorFlow-2.21-FF6F00?logo=tensorflow&logoColor=white">
-  <img alt="OpenCV 5.0" src="https://img.shields.io/badge/OpenCV-5.0-5C3EE8?logo=opencv&logoColor=white">
+  <img alt="Python 3.11" src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white">
+  <img alt="Node.js 22+" src="https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white">
+  <img alt="MIT License" src="https://img.shields.io/badge/License-MIT-yellow.svg">
 </p>
 
 <p align="center">
   <a href="README.md">简体中文</a> | <a href="README.en.md">English</a>
 </p>
 
-A Python project that uses a convolutional neural network (CNN) for face dataset collection, model training, and inference from images, videos, and webcams. It is intended for learning computer vision workflows and for small proof-of-concept applications.
+Face Workbench brings photo, video, and browser-camera face sources into one
+local workbench. Collect and organize face samples, train a lightweight CNN
+classifier, and use the same model set for photo, video, and live camera
+recognition.
 
-## Contents
+The application is local-first and single-user. Image, video, and model files
+stay on the local filesystem; SQLite stores only dataset, model, job, and label
+metadata.
 
-- [Overview](#overview)
-- [Features](#features)
-- [Technology stack](#technology-stack)
-- [Workflow](#workflow)
-- [Repository layout](#repository-layout)
-- [Requirements](#requirements)
-- [Quick start](#quick-start)
-- [Dataset conventions](#dataset-conventions)
-- [Configuration](#configuration)
-- [Testing and continuous integration](#testing-and-continuous-integration)
-- [Privacy and security](#privacy-and-security)
-- [Known limitations](#known-limitations)
-- [Contributing](#contributing)
-- [License](#license)
+> [!IMPORTANT]
+> This project is intended for learning, demonstrations, and local prototypes.
+> It is not production identity verification, liveness detection, or
+> surveillance software. Obtain explicit consent before collecting or
+> processing face images.
 
-## Overview
+## Product features
 
-The project provides an end-to-end pipeline:
+<p align="center">
+  <img
+    src="docs/images/face-workbench.png"
+    alt="Face Workbench product screenshot using empty demo data with no real people"
+    width="100%"
+  >
+</p>
 
-1. Detect and crop faces from photos, videos, or a webcam.
-2. Organize training images by person and generate class labels automatically.
-3. Build and train a CNN classifier with TensorFlow/Keras.
-4. Recognize faces in images, videos, and live webcam frames.
+<p align="center">
+  <sub>The screenshot was generated from an isolated empty database and contains no real names or face images.</sub>
+</p>
 
-The model receives a `128 × 128` grayscale face image and returns a class index and confidence score. Video and webcam inference label results below `0.70` confidence as `unknown`.
+- **Three input sources:** batch photos, sampled video frames, and browser-camera capture.
+- **One recognition pipeline:** OpenCV detection, 128 × 128 grayscale preprocessing, CNN classification, and thresholding.
+- **Visible collection results:** stopping the camera refreshes statistics and reports new versus duplicate samples.
+- **Dataset management:** continue collection, inspect thumbnails, delete individual samples, or remove a person.
+- **Model versioning:** persist weights, ordered labels, thresholds, metrics, and random seeds; activate historical models.
+- **Multi-scenario recognition:** photos, progress-tracked video jobs, and live browser-camera overlays.
+- **Persistent local jobs:** training and batch recognition jobs survive in SQLite and interrupted work is reported honestly.
+- **Product UI:** a responsive React workbench with real dataset, model, job, and output state.
 
-## Features
+## Technology
 
-| Module | Script | Description |
-| --- | --- | --- |
-| Photo collection | `faces_from_Photo.py` | Detect and crop faces from a directory of photos with OpenCV's Haar cascade |
-| Video collection | `faces_from_Video.py` | Collect faces from a video file with Dlib's HOG detector |
-| Webcam collection | `faces_from_Camera.py` | Capture faces in real time with random brightness and contrast augmentation |
-| Data processing | `load_dataset.py`, `dataSet.py` | Load images and labels, grayscale and resize them, normalize values, and split the dataset |
-| Model training | `train_model.py` | Build, train, evaluate, save, load, and use the CNN model |
-| Photo inference | `Recognize_From_Photo.py` | Run recognition on a single image or a directory of images |
-| Video inference | `Recognize_From_Vedio.py` | Detect and label faces in video frames |
-| Webcam inference | `Recognize_From_Camera.py` | Display live face detection and recognition results |
-| Automated verification | `tests/`, GitHub Actions | Exercise the train, save, reload, and predict workflow |
-
-### Model architecture
-
-```text
-Input(128 × 128 × 1)
-  -> Conv2D(32, 5 × 5, ReLU) -> MaxPooling2D
-  -> Conv2D(64, 5 × 5, ReLU) -> MaxPooling2D
-  -> Flatten
-  -> Dense(512, ReLU)
-  -> Dense(num_classes, Softmax)
-```
-
-## Technology stack
-
-- Python 3.11+
-- TensorFlow / Keras
-- OpenCV
-- scikit-learn
-- NumPy
-- Dlib for video and webcam dataset collection only
-
-Runtime dependencies are pinned in [`requirements.txt`](requirements.txt). Dlib is isolated in [`requirements-face-detection.txt`](requirements-face-detection.txt).
-
-## Workflow
-
-```mermaid
-flowchart LR
-    A[Photo / video / webcam] --> B[Face detection and crop]
-    B --> C[dataset/person/image]
-    C --> D[Grayscale and 128×128 resize]
-    D --> E[Train/test split]
-    E --> F[Train CNN]
-    F --> G[MyModel/model.keras]
-    A --> H[Photo / video / webcam inference]
-    G --> H
-    H --> I[Name and confidence]
-```
-
-## Repository layout
-
-```text
-.
-├── .github/
-│   ├── dependabot.yml
-│   └── workflows/ci.yml
-├── dataset/                    # dataset/<person>/*.jpg
-├── model_test/                 # images or videos used for inference
-├── tests/                      # smoke tests
-├── dataSet.py                  # data formatting and label encoding
-├── load_dataset.py             # dataset reader
-├── read_img.py                 # image directory utilities
-├── train_model.py              # CNN definition, training, persistence, and prediction
-├── faces_from_Photo.py         # face collection from photos
-├── faces_from_Video.py         # face collection from a video
-├── faces_from_Camera.py        # face collection from a webcam
-├── Recognize_From_Photo.py     # photo inference
-├── Recognize_From_Vedio.py     # video inference
-├── Recognize_From_Camera.py    # live webcam inference
-├── requirements.txt            # core dependencies
-└── requirements-face-detection.txt
-```
-
-## Requirements
-
-- Python 3.11 or later
-- macOS, Linux, or Windows
-- A webcam and Dlib when using video or webcam collection
-- A TensorFlow-compatible CPU or GPU is recommended for training and live inference
+| Layer | Stack |
+| --- | --- |
+| Backend API | Python 3.11, FastAPI, Uvicorn, Pydantic |
+| Face vision | OpenCV Haar detection, cropping, grayscale conversion, annotation |
+| Model training | TensorFlow / Keras CNN, NumPy, scikit-learn |
+| Data layer | SQLAlchemy 2, Alembic, SQLite |
+| Frontend | React 19, TypeScript, Vite, TanStack Query |
+| Quality | pytest, ruff, mypy, ESLint, Vitest, Playwright |
 
 ## Quick start
 
-### 1. Clone and install
+### Requirements
+
+- Python 3.11
+- Node.js 22+
+- pnpm 10+
+
+### Install and run
 
 ```bash
 git clone https://github.com/panvv-ai/CNN_FacesRecognition.git
 cd CNN_FacesRecognition
 
-python3.11 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+uv sync --extra dev
+pnpm --dir frontend install
+pnpm --dir frontend build
+
+uv run python main.py
 ```
 
-Windows PowerShell:
+Open:
 
-```powershell
-.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
+- Product UI: <http://127.0.0.1:8000>
+- API documentation: <http://127.0.0.1:8000/docs>
+- Health check: <http://127.0.0.1:8000/api/health>
 
-Install Dlib only when collecting faces from video or a webcam:
+For frontend hot reload:
 
 ```bash
-pip install -r requirements-face-detection.txt
+pnpm --dir frontend dev
 ```
 
-On platforms without a Dlib binary package, installation compiles from source and normally requires CMake and a C++ toolchain.
+## Usage
 
-### 2. Prepare a dataset
+### Collect faces
 
-Store each person's images in a directory named after that person:
+1. Select **Collect**.
+2. Choose **Photo**, **Video**, or **Camera**.
+3. Enter a person name and start collection.
+4. Stop the camera to trigger an automatic dataset refresh and save report.
+
+Training requires at least two people and at least two readable face samples per
+person.
+
+### Manage saved data
+
+In the dataset ledger:
+
+- **Continue collection** opens the camera workflow with that person selected.
+- **Manage samples** shows saved face thumbnails and supports individual deletion.
+- **Delete** removes all raw face files and database records for that person.
+
+Deleting source samples does not automatically remove previously trained model
+weights.
+
+### Train and recognize
+
+- **Train** creates a model; the first successful model is activated automatically.
+- **Recognize** accepts photos, videos, or a live browser camera.
+- Results below the model threshold are labelled `Unknown`.
+
+### Import legacy data
+
+```bash
+uv run python main.py import-legacy --source dataset
+```
+
+Legacy files are detected, cropped, and copied into the new storage. Original
+files are not modified.
+
+## CLI
+
+| Command | Purpose |
+| --- | --- |
+| `uv run python main.py` | Start the local web product |
+| `uv run python main.py serve` | Explicitly start the web server |
+| `uv run python main.py db-upgrade` | Upgrade the SQLite schema |
+| `uv run python main.py import-legacy --source dataset` | Import legacy data |
+| `uv run python main.py collect --source photo --person Alice --input ./photos` | Collect from photos |
+| `uv run python main.py collect --source video --person Alice --input ./video.mp4` | Collect from video |
+| `uv run python main.py collect --source camera --person Alice` | Collect from the local camera |
+| `uv run python main.py train` | Train and save a model |
+| `uv run python main.py recognize --source photo --input ./target.jpg` | Recognize a photo |
+| `uv run python main.py recognize --source video --input ./target.mp4` | Recognize a video |
+| `uv run python main.py recognize --source camera` | Recognize from the local camera |
+
+## Project layout
 
 ```text
-dataset/
-├── alice/
-│   ├── 0001.jpg
-│   └── 0002.jpg
-└── bob/
-    ├── 0001.jpg
-    └── 0002.jpg
+.
+├── main.py                     # Unified product entrypoint
+├── src/face_workbench/
+│   ├── domain/                 # Domain types and validation
+│   ├── vision/                 # Detection, cropping, image processing
+│   ├── ml/                     # CNN training and model metadata
+│   ├── db/                     # SQLAlchemy models and repositories
+│   ├── services/               # Collection, training, recognition, jobs, management
+│   ├── api/                    # FastAPI, WebSocket, static SPA
+│   └── cli.py                  # Typer command-line interface
+├── frontend/                   # React + TypeScript + Vite
+├── migrations/                 # Alembic migrations
+├── docs/                       # Architecture, privacy, model card, database docs
+├── tests/                      # Python unit and integration tests
+└── storage/                    # Runtime data, ignored by Git
 ```
 
-You can also collect images with the provided scripts:
+See [docs/architecture.md](docs/architecture.md) for the design.
 
-```bash
-# Collect from photos; create ./MySource_faces and the output directory first
-python faces_from_Photo.py
+## Data and privacy
 
-# Collect from video; update the video path in the script
-python faces_from_Video.py
+Runtime data defaults to:
 
-# Collect from webcam; change cv2.VideoCapture(700) to the usual device index 0
-python faces_from_Camera.py
+```text
+storage/
+├── face_workbench.sqlite3
+├── datasets/default/faces/<name>/*.jpg
+├── models/<model-id>/
+├── uploads/<job-id>/
+└── outputs/<job-id>/
 ```
 
-Edit source paths, output paths, video filenames, and camera indices for your machine.
+- The server binds to `127.0.0.1` by default.
+- Face images, labels, models, and outputs are not uploaded to external services.
+- Runtime files, databases, model weights, uploads, and outputs are ignored by Git.
+- Thumbnail routes only serve registered sample IDs; the whole storage directory is not exposed.
+- Deleting a source sample does not erase learned parameters from historical models.
 
-### 3. Train the model
-
-```bash
-python train_model.py
-```
-
-The model is saved to `MyModel/model.keras` by default. The script uses an `80:20` train/test split and prints test loss and accuracy.
-
-### 4. Run inference
-
-```bash
-# Recognize photos under model_test/
-python Recognize_From_Photo.py
-
-# Recognize a video; set the video path in the script
-python Recognize_From_Vedio.py
-
-# Live webcam recognition; adjust the camera index when needed
-python Recognize_From_Camera.py
-```
-
-Recognition scripts recover display names from the subdirectory names under `dataset/`. Keep the same directory structure during training and inference.
-
-## Dataset conventions
-
-- Each subdirectory represents one person; its name is used as the display label.
-- The current loader reads `.jpg` files only.
-- Images should contain clear, detectable faces and cover varied lighting, angles, and expressions.
-- Training converts images to grayscale and resizes them to `128 × 128`.
-- Do not commit private face photos, model weights, or local caches.
+Read [docs/privacy.md](docs/privacy.md) and [docs/model-card.md](docs/model-card.md).
 
 ## Configuration
 
-| Setting | Location | Default |
+Copy [`.env.example`](.env.example) to `.env`, or use environment variables:
+
+| Variable | Default | Description |
 | --- | --- | --- |
-| Input size | `train_model.py` | `128 × 128` |
-| Epochs | `train_model.py` | `8` |
-| Batch size | `train_model.py` | `20` |
-| Model path | `train_model.py` | `./MyModel/model.keras` |
-| Unknown-face threshold | `Recognize_From_Camera.py`, `Recognize_From_Vedio.py` | `0.70` |
-| Collection target | `faces_from_Video.py`, `faces_from_Camera.py` | `200` |
-| Camera device index | `faces_from_Camera.py`, `Recognize_From_Camera.py` | `700` |
+| `FACE_WORKBENCH_HOST` | `127.0.0.1` | Listen address |
+| `FACE_WORKBENCH_PORT` | `8000` | Listen port |
+| `FACE_WORKBENCH_STORAGE_DIR` | `./storage` | Local runtime directory |
+| `FACE_WORKBENCH_DATABASE_URL` | SQLite default | SQLAlchemy database URL |
+| `FACE_WORKBENCH_THRESHOLD` | `0.70` | Unknown-face threshold |
+| `FACE_WORKBENCH_CAMERA_FRAME_EDGE` | `960` | Browser-camera long-edge limit |
 
-## Testing and continuous integration
-
-Run locally:
+## Development and testing
 
 ```bash
-python -m unittest discover -s tests -v
+uv run pre-commit install
+
+uv run ruff check src tests scripts main.py *.py
+uv run mypy
+uv run pytest
+
+pnpm --dir frontend lint
+pnpm --dir frontend typecheck
+pnpm --dir frontend test:run
+pnpm --dir frontend test:e2e
+pnpm --dir frontend build
 ```
 
-The test creates a temporary dataset and runs one training pass, then saves, reloads, and invokes the model for prediction.
+Install the Playwright browser once:
 
-GitHub Actions runs the same check for pull requests and pushes to `master`. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+```bash
+pnpm --dir frontend exec playwright install chromium
+```
 
-## Privacy and security
+## CodeGraph
 
-Face images are sensitive personal information. Before using or publishing data, models, or recognition results from this project:
+```bash
+codegraph init .
+codegraph status
+codegraph explore "RecognitionService TrainingService"
+```
 
-- Obtain explicit consent from the people involved or establish another lawful basis.
-- Follow applicable privacy, biometric, and face-recognition regulations.
-- Do not use the project for undisclosed surveillance, identity verification, or high-impact decisions without appropriate safeguards.
-- Never publish real people's photos, model weights, secrets, or runtime logs without authorization.
+The local `.codegraph/` SQLite index is ignored by Git.
 
-The sample photos in this repository are included only to demonstrate the workflow. Maintainers should periodically verify that permission to publish them still applies.
+## Compatibility entrypoints
+
+The original `faces_from_*.py`, `Recognize_From_*.py`, `dataSet.py`,
+`load_dataset.py`, `read_img.py`, and `train_model.py` files remain as legacy
+entrypoints or compatibility exports. New usage should go through `main.py`.
 
 ## Known limitations
 
-- The model is a basic CNN classifier and has no liveness detection, anti-spoofing, or cross-age recognition.
-- Haar/HOG detection is less reliable with occlusion, small faces, and extreme lighting.
-- A small dataset can overfit quickly; test accuracy does not represent production performance.
-- Camera indices, file paths, and several training parameters are currently hard-coded.
-- No pretrained model, packaged installation, or graphical interface is currently included.
+- Haar detection is limited by occlusion, small or rotated faces, and poor lighting.
+- A small CNN can overfit when training data is limited.
+- No liveness detection, anti-spoofing, cross-age recognition, or large-scale face retrieval.
+- Live camera performance depends on browser permissions, hardware, and frame compression.
+- Remote HTTPS and multi-user deployment are outside the current scope.
 
 ## Contributing
 
-Issues and pull requests are welcome:
-
-1. Create a feature branch from `master`.
-2. Keep each change focused and add or update tests.
-3. Run `python -m unittest discover -s tests -v`.
-4. Open a pull request and wait for CI and code review.
-
-The `master` branch should remain buildable, testable, and reversible. Direct pushes, force pushes, and branch deletion are not allowed.
+Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before submitting changes.
 
 ## License
 
-No open-source license has been declared. Until a license is added, copyright remains with the repository owner by default. Obtain explicit permission before copying, modifying, distributing, or using the project commercially.
+Copyright © 2026 CNN_FacesRecognition contributors.
 
----
+This project is released under the [MIT License](LICENSE). Subject to preserving
+the copyright and permission notices, you may use, copy, modify, merge, publish,
+distribute, sublicense, and sell copies of the software.
 
-Maintainer blog: <https://www.cnblogs.com/panweiwei/>
+The software is provided **“AS IS”**, without warranty of any kind, express or
+implied, including merchantability, fitness for a particular purpose, and
+non-infringement. The authors or copyright holders are not liable for any claim,
+damage, or other liability arising from use of the software.

@@ -10,20 +10,83 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  backend:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
-
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-          cache: pip
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --extra dev
+      - name: Lint
+        run: uv run ruff check src tests scripts main.py
+      - name: Type check
+        run: uv run mypy
+      - name: Database migration
+        env:
+          FACE_WORKBENCH_STORAGE_DIR: ${{ runner.temp }}/face-workbench
+        run: uv run python main.py db-upgrade
+      - run: uv run pytest
 
-      - name: Install dependencies
-        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - working-directory: frontend
+        run: pnpm install --frozen-lockfile
+      - run: uv sync --extra dev
+      - working-directory: frontend
+        run: pnpm lint
+      - working-directory: frontend
+        run: pnpm typecheck
+      - working-directory: frontend
+        run: pnpm test:run
+      - working-directory: frontend
+        run: pnpm build
+      - working-directory: frontend
+        run: pnpm exec playwright install --with-deps chromium
+      - working-directory: frontend
+        run: pnpm test:e2e
 
-      - name: Run smoke tests
-        run: python -m unittest discover -s tests -v
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: uv sync --extra dev
+      - run: pnpm --dir frontend install --frozen-lockfile
+      - name: Regenerate API contract
+        run: |
+          uv run python scripts/export_openapi.py
+          pnpm --dir frontend api:types
+      - name: Check generated contract
+        run: git diff --exit-code -- openapi.json frontend/src/api/schema.ts
