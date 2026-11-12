@@ -58,6 +58,13 @@ describe("Face Workbench", () => {
     expect(screen.queryByText(/SQLite/)).not.toBeInTheDocument();
   });
 
+  it("keeps the ambient aurora field decorative", async () => {
+    renderApp();
+    await screen.findByRole("heading", { name: /从采集到识别，一条完整链路/ });
+
+    expect(document.querySelector(".aurora-field")).toHaveAttribute("aria-hidden", "true");
+  });
+
   it("switches between task modes", async () => {
     const user = userEvent.setup();
     renderApp();

@@ -11,6 +11,7 @@ import {
   submitTraining
 } from "./api/client";
 import type { Job, Model, Person, SourceKind, TaskKind } from "./api/types";
+import { AuroraField } from "./components/AuroraField";
 import { CameraPanel } from "./components/CameraPanel";
 import { DatasetLedger } from "./components/DatasetLedger";
 import { Footer } from "./components/Footer";
@@ -212,7 +213,7 @@ export default function App() {
 
   return (
     <div className="app-shell" id="top">
-      <div className="atmosphere" aria-hidden="true" />
+      <AuroraField />
       <NavPill engineReady={bootstrap.engineReady} onStart={startCollect} />
 
       <main>
@@ -224,11 +225,23 @@ export default function App() {
               从照片、视频或摄像头收集人脸，训练轻量 CNN，再把同一个模型带回三种识别场景。
             </p>
           </div>
-          <div className="hero__signal" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
+          <dl className="hero__telemetry" aria-label="工作台概况">
+            <div>
+              <dt>SUBJECTS</dt>
+              <dd>{bootstrap.dataset.people.length.toString().padStart(2, "0")}</dd>
+              <span>人物</span>
+            </div>
+            <div>
+              <dt>SAMPLES</dt>
+              <dd>{bootstrap.dataset.totalFaces.toString().padStart(2, "0")}</dd>
+              <span>样本</span>
+            </div>
+            <div>
+              <dt>MODELS</dt>
+              <dd>{bootstrap.models.length.toString().padStart(2, "0")}</dd>
+              <span>模型</span>
+            </div>
+          </dl>
         </header>
 
         <section className="workbench" id="workbench" aria-label="人脸识别工作台">
@@ -268,8 +281,8 @@ export default function App() {
             bootstrap={bootstrap}
             onActivate={(model) => activateMutation.mutate(model)}
           />
+          <JobLedger jobs={jobs} />
         </div>
-        <JobLedger jobs={jobs} />
       </main>
 
       <Footer />

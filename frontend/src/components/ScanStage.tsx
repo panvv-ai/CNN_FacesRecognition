@@ -20,12 +20,31 @@ function IdleFace() {
         </linearGradient>
       </defs>
       <g fill="none" stroke="url(#face-line)" strokeWidth="1.2">
+        <circle cx="210" cy="208" r="188" opacity="0.2" strokeDasharray="2 12" />
+        <circle cx="210" cy="208" r="164" opacity="0.16" />
         <ellipse cx="210" cy="208" rx="116" ry="148" />
         <ellipse cx="210" cy="208" rx="94" ry="126" opacity="0.6" />
         <ellipse cx="210" cy="208" rx="152" ry="184" opacity="0.3" />
         <path d="M142 188c18-13 36-18 55-16M278 188c-18-13-36-18-55-16" />
         <path d="M210 194v54c0 10-5 18-14 23" />
         <path d="M174 282c22 15 50 15 72 0" />
+        <path d="M148 238c18 8 35 8 49 0M272 238c-18 8-35 8-49 0" opacity="0.5" />
+        <path d="M90 208h42M288 208h42M210 20v38M210 354v46" opacity="0.34" />
+      </g>
+      <g fill="var(--color-cyan)">
+        {[
+          [142, 188],
+          [278, 188],
+          [210, 194],
+          [197, 271],
+          [223, 271],
+          [174, 282],
+          [246, 282],
+          [148, 238],
+          [272, 238]
+        ].map(([cx, cy]) => (
+          <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2.2" opacity="0.8" />
+        ))}
       </g>
       <g fill="var(--color-scan)" opacity="0.6">
         {[54, 116, 178, 240, 302, 364].map((value) => (
